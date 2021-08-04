@@ -14,7 +14,17 @@ namespace GKApp
         private Simulation _simulation;
         private Renderer _renderer;
 
-        public GKProgram() : base(new GameWindowSettings(), new NativeWindowSettings())
+        public GKProgram() : base(
+            new GameWindowSettings(), 
+            new NativeWindowSettings()
+            {
+                Size = new Vector2i(640, 480),
+                Title = "N-Body Simulation",
+                APIVersion = new System.Version(4, 6),
+                API = ContextAPI.OpenGL,
+                NumberOfSamples = 8,
+            }
+            )
         {
             _simulation = new Simulation();
             _renderer = new Renderer(_simulation);
@@ -44,6 +54,8 @@ namespace GKApp
             base.OnRenderFrame(e);
             
             GL.ClearColor(0.1f, 0.2f, 0.5f, 0.0f);
+            GL.ClearDepth(1.0);
+            GL.DepthFunc(DepthFunction.Lequal);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             _renderer.Render();
             

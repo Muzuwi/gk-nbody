@@ -9,6 +9,9 @@ namespace GKApp
         private ISimulation _simulation;
         private ProgramHandle _program;
         private BufferHandle _vertexPositionBuffer;
+        private VertexArrayHandle _vertexArrayHandle;
+        private double[] vertexPos = new double[9] { -1.0, -1.0, 1.0,   1.0, -1.0, 1.0,   0.0, 1.0, 1.0};
+
 
         public Renderer(ISimulation simulation)
         {
@@ -28,8 +31,7 @@ namespace GKApp
             void main()
             {
                 v_color     = vec3(1.0, 0.0, 1.0);
-                gl_Position = vec4(a_pos, 0.0); 
-                gl_PointSize = 10.0;
+                gl_Position = vec4(a_pos, 1.0); 
             }";
 
             string fragmentShaderCode = @"
@@ -84,19 +86,24 @@ namespace GKApp
                 return;
             }
 
+
             _vertexPositionBuffer = GL.CreateBuffer();
+            _vertexArrayHandle = GL.CreateVertexArray();
         }
         
         public void Render()
         {
             GL.UseProgram(_program);
 
+            GL.BindVertexArray(_vertexArrayHandle);
             GL.BindBuffer(BufferTargetARB.ArrayBuffer, _vertexPositionBuffer);
-
-            double[] vertexPos = new double[3] { 0, 0, 0 };
             GL.BufferData(BufferTargetARB.ArrayBuffer, vertexPos, BufferUsageARB.StaticDraw);
-            GL.DrawArrays(PrimitiveType.Points, 0, 1);
-
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Double, false, 3 * sizeof(double), 0);
+            GL.EnableVertexAttribArray(0);
+            
+            GL.PointSize(100.0f);
+            GL.DrawArrays(PrimitiveType.Points, 0, 3);
+            GL.Flush();
         }
     }
 }

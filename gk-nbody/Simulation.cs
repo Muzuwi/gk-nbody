@@ -7,16 +7,18 @@ namespace GKApp
 {
     public class Simulation : ISimulation
     {
-        Simulation()
+        public Simulation()
         {
             var random = new Random();
-            var count = random.Next();
+            var count = (int)(random.NextDouble() * 500);
+            Bodies = new Body[count];
 
-            foreach(var c in Enumerable.Range(0, count))
+            foreach(var i in Enumerable.Range(0, count))
             {
                 var position = new Vector3d(random.NextDouble(), random.NextDouble(), random.NextDouble());
                 var mass = random.NextDouble() * 1000;
-                // Bodies.Append()
+                
+                Bodies[i] = new Body(position, new Vector3d(), mass);
             }
         }
         
@@ -24,7 +26,7 @@ namespace GKApp
 
         public void Update(double delta)
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }

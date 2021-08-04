@@ -23,6 +23,7 @@ namespace GKApp
         protected override void OnLoad()
         {
             base.OnLoad();
+            _renderer.OnLoad();
             GL.Enable(EnableCap.DepthTest);
         }
 

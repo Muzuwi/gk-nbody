@@ -34,6 +34,7 @@ namespace GKApp
         {
             base.OnLoad();
             _renderer.OnLoad();
+            CursorGrabbed = true;
         }
 
         protected override void OnResize(ResizeEventArgs e)

@@ -16,16 +16,7 @@ namespace GKApp
         private float[] vertexPos;
         private Vector2i _windowSize;
 
-        public Renderer(ISimulation simulation)
-        {
-            _simulation = simulation;
-        }
-
-        public void OnLoad()
-        {
-            Console.Out.WriteLine("Renderer OnLoad");
-            
-            string vertexShaderCode = @"
+        private readonly string vertexShaderCode = @"
             #version 460 core
             precision highp float;
             layout (location = 0) in vec3 aPos;
@@ -41,10 +32,12 @@ namespace GKApp
                 uVMatrix;
                 vColor      = vec3(1.0, 1.0, 0.0);
                 gl_Position = uVMatrix * uPMatrix * vec4(aPos, 1.0);
-                gl_PointSize = 1.0 + (sqrt(aMass) / 500.0);
-            }";
+                float pointMass = 1.0 + (sqrt(aMass) / 12500.0);
+                gl_PointSize = pointMass;
+            }
+        ";
 
-            string fragmentShaderCode = @"
+        private readonly string fragmentShaderCode = @"
             #version 460 core
             precision highp float;
             out vec3 frag_color;
@@ -53,8 +46,19 @@ namespace GKApp
             void main()
             {
                 frag_color = vColor; 
-            }";
+            }
+        ";
 
+        
+        public Renderer(ISimulation simulation)
+        {
+            _simulation = simulation;
+        }
+
+        public void OnLoad()
+        {
+            Console.Out.WriteLine("Renderer OnLoad");
+            
             var vertexHandle = GL.CreateShader(ShaderType.VertexShaderArb);
             var fragmentHandle = GL.CreateShader(ShaderType.FragmentShaderArb);
             GL.ShaderSource(vertexHandle, vertexShaderCode);

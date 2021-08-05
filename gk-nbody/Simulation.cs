@@ -18,15 +18,15 @@ namespace GKApp
             PressedKeys = new Dictionary<Keys, bool>();
             
             var random = new Random();
-            var count = (int)( 25 + random.NextDouble() * 100);
+            var count = (int)( 25 + random.NextDouble() * 500);
             Bodies = new Body[count];
 
             foreach(var i in Enumerable.Range(0, count))
             {
                 var position = new Vector3((float)random.NextDouble()*100, (float)random.NextDouble()*100, (float)random.NextDouble()*100);
-                var mass = 10 + random.NextDouble() * 10000000;
+                var mass = 1e10 + random.NextDouble() * 10000000;
                 
-                Bodies[i] = new Body(position, new Vector3(), new Vector3(), (float)mass);
+                Bodies[i] = new Body(position, new Vector3(), (float)mass);
             }
         }
         
@@ -59,14 +59,16 @@ namespace GKApp
                 {
                     if (mn == mi) continue;
                     double distance = (Bodies[mn].Position - Bodies[mi].Position).Length;
-                    Vector3 result = ((Bodies[mn].Position - Bodies[mi].Position) / (float)distance);
-                    result /= (float)Math.Abs(Math.Pow(distance, 2));
-                    result *= -(G * Bodies[mn].Mass * Bodies[mi].Mass);
-                    F += result;
+                    
+                    Vector3 forces = ((Bodies[mn].Position - Bodies[mi].Position) / (float)distance);
+                    forces /= (float)Math.Abs(Math.Pow(distance, 2));
+                    forces *= -(G * Bodies[mn].Mass * Bodies[mi].Mass);
+                    F += forces;
                 }
-                Bodies[mn].Acceleration += (F / Bodies[mn].Mass);
-                Bodies[mn].Velocity += Bodies[mn].Acceleration * (float)delta;
-                Bodies[mn].Position += (Bodies[mn].Velocity * (float)delta) + (0.5f * Bodies[mn].Acceleration * (float)Math.Pow(delta, 2));
+                
+                Vector3 acceleration = (F / Bodies[mn].Mass);
+                Bodies[mn].Velocity += acceleration * (float)delta;
+                Bodies[mn].Position += (Bodies[mn].Velocity * (float)delta) + (0.5f * acceleration * (float)Math.Pow(delta, 2));
             }
 
             // if (IsKeyPressed(Keys.Space))

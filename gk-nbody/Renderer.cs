@@ -1,6 +1,7 @@
 using System;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 
 namespace GKApp
 {
@@ -11,11 +12,15 @@ namespace GKApp
         private BufferHandle _vertexPositionBuffer;
         private VertexArrayHandle _vertexArrayHandle;
         private double[] vertexPos;
+        private Matrix4d _VMatrix;
+        private Matrix4d _PMatrix;
 
 
         public Renderer(ISimulation simulation)
         {
             _simulation = simulation;
+            _VMatrix = new Matrix4d();
+            _PMatrix = new Matrix4d();
         }
 
         public void OnLoad()
@@ -28,11 +33,16 @@ namespace GKApp
             layout (location = 0) in vec3 a_pos;
             layout (location = 1) in float mass;
 
+            uniform mat4 u_PMatrix;
+            uniform mat4 u_VMatrix;
+
             out vec3 v_color;
             void main()
             {
+                u_PMatrix;
+                u_VMatrix;
                 v_color     = vec3(1.0, 1.0, 0.0);
-                gl_Position = vec4(a_pos, 1.0); 
+                gl_Position = u_PMatrix * u_VMatrix * vec4(a_pos, 1.0); 
                 gl_PointSize = 1.0 + (sqrt(mass) / 15.0);
             }";
 
@@ -116,10 +126,45 @@ namespace GKApp
             GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Double, false, 4 * sizeof(double), 3 * sizeof(double));
             GL.EnableVertexAttribArray(1);
             GL.Enable(EnableCap.ProgramPointSize);
+
+            GL.GetError();
             
-            //GL.PointSize(1.5f);
+            // _VMatrix = Matrix4d.CreateTranslation(10.0, 10.0 , 10.0);
+            // _PMatrix = Matrix4d.Perspective(90, 640.0/480.0, 10, 100);
+            _VMatrix = Matrix4d.Identity;
+            _PMatrix = Matrix4d.Identity;
+            
+            GL.PointSize(1.0f);
+
+            var pmHandle = GL.GetUniformLocation(_program, "u_PMatrix");
+            var vmHandle = GL.GetUniformLocation(_program, "u_VMatrix");
+
+            if (pmHandle == -1)
+            {
+                Console.Out.WriteLine("PMHandle is null");
+            }
+            if (vmHandle == -1)
+            {
+                Console.Out.WriteLine("VMHandle is null");
+            }
+
+            ErrorCode err;
+            
+            GL.UniformMatrix4d(pmHandle, false, _VMatrix);
+            err = GL.GetError();
+            if (err != ErrorCode.NoError)
+            {
+                Console.Out.WriteLine($"Error uniform 1 {err.ToString()}");
+            }
+
+            GL.UniformMatrix4d(vmHandle, false, _PMatrix);
+            err = GL.GetError();
+            if (err != ErrorCode.NoError)
+            {
+                Console.Out.WriteLine($"Error uniform 2 {err.ToString()}");
+            }
+            
             GL.DrawArrays(PrimitiveType.Points, 0, _simulation.Bodies.Length);
-            GL.Flush();
         }
     }
 }

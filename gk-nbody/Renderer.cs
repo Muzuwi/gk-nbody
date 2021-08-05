@@ -26,12 +26,14 @@ namespace GKApp
             #version 460 core
             precision highp float;
             layout (location = 0) in vec3 a_pos;
+            layout (location = 1) in float mass;
 
             out vec3 v_color;
             void main()
             {
                 v_color     = vec3(1.0, 1.0, 0.0);
                 gl_Position = vec4(a_pos, 1.0); 
+                gl_PointSize = 1.0 + (sqrt(mass) / 15.0);
             }";
 
             string fragmentShaderCode = @"
@@ -98,20 +100,24 @@ namespace GKApp
             GL.BindVertexArray(_vertexArrayHandle);
             GL.BindBuffer(BufferTargetARB.ArrayBuffer, _vertexPositionBuffer);
 
-            vertexPos = new double[_simulation.Bodies.Length * 3];
+            vertexPos = new double[_simulation.Bodies.Length * 4];
             int i = 0;
             foreach(Body v in _simulation.Bodies)
             {
                 vertexPos[i++] = v.Position.X;
                 vertexPos[i++] = v.Position.Y;
                 vertexPos[i++] = v.Position.Z;
+                vertexPos[i++] = v.Mass;
             }
 
             GL.BufferData(BufferTargetARB.ArrayBuffer, vertexPos, BufferUsageARB.StaticDraw);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Double, false, 3 * sizeof(double), 0);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Double, false, 4 * sizeof(double), 0);
             GL.EnableVertexAttribArray(0);
+            GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Double, false, 4 * sizeof(double), 3 * sizeof(double));
+            GL.EnableVertexAttribArray(1);
+            GL.Enable(EnableCap.ProgramPointSize);
             
-            GL.PointSize(1.5f);
+            //GL.PointSize(1.5f);
             GL.DrawArrays(PrimitiveType.Points, 0, _simulation.Bodies.Length);
             GL.Flush();
         }

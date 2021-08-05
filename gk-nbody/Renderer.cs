@@ -8,19 +8,18 @@ namespace GKApp
     public class Renderer
     {
         private ISimulation _simulation;
-        private ProgramHandle _program;
-        private BufferHandle _vertexPositionBuffer;
-        private VertexArrayHandle _vertexArrayHandle;
-        private double[] vertexPos;
-        private Matrix4d _VMatrix;
-        private Matrix4d _PMatrix;
-
+        private int _program;
+        private int _vertexPositionBuffer;
+        private int _vertexArrayHandle;
+        private float[] vertexPos;
+        private Matrix4 _VMatrix;
+        private Matrix4 _PMatrix;
 
         public Renderer(ISimulation simulation)
         {
             _simulation = simulation;
-            _VMatrix = new Matrix4d();
-            _PMatrix = new Matrix4d();
+            _VMatrix = new Matrix4();
+            _PMatrix = new Matrix4();
         }
 
         public void OnLoad()
@@ -98,9 +97,8 @@ namespace GKApp
                 return;
             }
 
-
-            _vertexPositionBuffer = GL.CreateBuffer();
-            _vertexArrayHandle = GL.CreateVertexArray();
+            GL.CreateBuffers(1, out _vertexPositionBuffer);
+            GL.CreateVertexArrays(1, out _vertexArrayHandle);
         }
         
         public void Render()
@@ -108,9 +106,9 @@ namespace GKApp
             GL.UseProgram(_program);
 
             GL.BindVertexArray(_vertexArrayHandle);
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, _vertexPositionBuffer);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexPositionBuffer);
 
-            vertexPos = new double[_simulation.Bodies.Length * 4];
+            vertexPos = new float[_simulation.Bodies.Length * 4];
             int i = 0;
             foreach(Body v in _simulation.Bodies)
             {
@@ -120,10 +118,10 @@ namespace GKApp
                 vertexPos[i++] = v.Mass;
             }
 
-            GL.BufferData(BufferTargetARB.ArrayBuffer, vertexPos, BufferUsageARB.StaticDraw);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Double, false, 4 * sizeof(double), 0);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexPos.Length*sizeof(float), vertexPos, BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
-            GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Double, false, 4 * sizeof(double), 3 * sizeof(double));
+            GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Float, false, 4 * sizeof(float), 3 * sizeof(float));
             GL.EnableVertexAttribArray(1);
             GL.Enable(EnableCap.ProgramPointSize);
 
@@ -131,33 +129,21 @@ namespace GKApp
             
             // _VMatrix = Matrix4d.CreateTranslation(10.0, 10.0 , 10.0);
             // _PMatrix = Matrix4d.Perspective(90, 640.0/480.0, 10, 100);
-            _VMatrix = Matrix4d.Identity;
-            _PMatrix = Matrix4d.Identity;
+            _VMatrix = Matrix4.Identity;
+            _PMatrix = Matrix4.Identity;
             
-            GL.PointSize(1.0f);
-
             var pmHandle = GL.GetUniformLocation(_program, "u_PMatrix");
             var vmHandle = GL.GetUniformLocation(_program, "u_VMatrix");
 
-            if (pmHandle == -1)
-            {
-                Console.Out.WriteLine("PMHandle is null");
-            }
-            if (vmHandle == -1)
-            {
-                Console.Out.WriteLine("VMHandle is null");
-            }
-
             ErrorCode err;
-            
-            GL.UniformMatrix4d(pmHandle, false, _VMatrix);
+            GL.UniformMatrix4(vmHandle, false, ref _VMatrix);
             err = GL.GetError();
             if (err != ErrorCode.NoError)
             {
                 Console.Out.WriteLine($"Error uniform 1 {err.ToString()}");
             }
 
-            GL.UniformMatrix4d(vmHandle, false, _PMatrix);
+            GL.UniformMatrix4(vmHandle, false, ref _PMatrix);
             err = GL.GetError();
             if (err != ErrorCode.NoError)
             {

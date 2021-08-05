@@ -34,7 +34,6 @@ namespace GKApp
         {
             base.OnLoad();
             _renderer.OnLoad();
-            GL.Enable(EnableCap.DepthTest);
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -52,7 +51,7 @@ namespace GKApp
                 Close();
             }
             
-            _simulation.Update(e.Time);
+            _simulation.Update(e.Time * 10);
         }
         
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -60,12 +59,28 @@ namespace GKApp
             base.OnRenderFrame(e);
             
             GL.ClearColor(0.2588235294117647f, 0.2588235294117647f, 0.2588235294117647f, 0.0f);
-            GL.ClearDepth(1.0);
-            GL.DepthFunc(DepthFunction.Lequal);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
             _renderer.Render();
             
             SwapBuffers();
+        }
+
+        protected override void OnKeyDown(KeyboardKeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            _simulation.OnKeyDown(e);
+        }
+
+        protected override void OnKeyUp(KeyboardKeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+            _simulation.OnKeyUp(e);
+        }
+
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            base.OnMouseMove(e);
+            _simulation.OnMouseMove(e);
         }
 
         public static void Main()

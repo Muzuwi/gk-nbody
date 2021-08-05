@@ -40,8 +40,8 @@ namespace GKApp
                 uPMatrix;
                 uVMatrix;
                 vColor      = vec3(1.0, 1.0, 0.0);
-                gl_Position = uPMatrix * uVMatrix * vec4(aPos, 1.0);
-                gl_PointSize = 1.0 + (sqrt(aMass) / 15.0);
+                gl_Position = uVMatrix * uPMatrix * vec4(aPos, 1.0);
+                gl_PointSize = 1.0 + (sqrt(aMass) / 500.0);
             }";
 
             string fragmentShaderCode = @"
@@ -102,12 +102,17 @@ namespace GKApp
 
         private Matrix4 CreateViewMatrix()
         {
-            return Matrix4.Identity;
+            return Matrix4.LookAt(_simulation.CameraPos, _simulation.CameraPos + _simulation.CameraFront,
+                _simulation.CameraUp);
         }
         
         private Matrix4 CreateProjectionMatrix()
         {
-            return Matrix4.Identity;
+            return Matrix4.CreatePerspectiveFieldOfView(
+                (float)(45.0 * Math.PI / 180.0), 
+                (float)_windowSize.X / (float)_windowSize.Y, 
+                0.1f, 
+                1000.0f);
         }
 
         public void OnWindowResize(int width, int height)
@@ -161,6 +166,22 @@ namespace GKApp
             }
             
             GL.DrawArrays(PrimitiveType.Points, 0, _simulation.Bodies.Length);
+
+
+            GL.UseProgram(_program);
+            float[] test = new float[]
+            {
+                0.0f, 0.0f, 0.0f, 1.0f,
+                0.0f, 10.0f, 0.0f, 1.0f,
+                -10.0f, 0.0f, 0.0f, 1.0f
+            };
+            GL.BufferData(BufferTarget.ArrayBuffer, test.Length*sizeof(float), test, BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
+            GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Float, false, 4 * sizeof(float), 3 * sizeof(float));
+            GL.EnableVertexAttribArray(1);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+            
         }
     }
 }

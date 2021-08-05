@@ -12,14 +12,11 @@ namespace GKApp
         private int _vertexPositionBuffer;
         private int _vertexArrayHandle;
         private float[] vertexPos;
-        private Matrix4 _VMatrix;
-        private Matrix4 _PMatrix;
+        private Vector2i _windowSize;
 
         public Renderer(ISimulation simulation)
         {
             _simulation = simulation;
-            _VMatrix = new Matrix4();
-            _PMatrix = new Matrix4();
         }
 
         public void OnLoad()
@@ -29,31 +26,31 @@ namespace GKApp
             string vertexShaderCode = @"
             #version 460 core
             precision highp float;
-            layout (location = 0) in vec3 a_pos;
-            layout (location = 1) in float mass;
+            layout (location = 0) in vec3 aPos;
+            layout (location = 1) in float aMass;
 
-            uniform mat4 u_PMatrix;
-            uniform mat4 u_VMatrix;
+            uniform mat4 uPMatrix;
+            uniform mat4 uVMatrix;
 
-            out vec3 v_color;
+            out vec3 vColor;
             void main()
             {
-                u_PMatrix;
-                u_VMatrix;
-                v_color     = vec3(1.0, 1.0, 0.0);
-                gl_Position = u_PMatrix * u_VMatrix * vec4(a_pos, 1.0); 
-                gl_PointSize = 1.0 + (sqrt(mass) / 15.0);
+                uPMatrix;
+                uVMatrix;
+                vColor      = vec3(1.0, 1.0, 0.0);
+                gl_Position = uPMatrix * uVMatrix * vec4(aPos, 1.0);
+                gl_PointSize = 1.0 + (sqrt(aMass) / 15.0);
             }";
 
             string fragmentShaderCode = @"
             #version 460 core
             precision highp float;
             out vec3 frag_color;
-            in  vec3 v_color;
+            in  vec3 vColor;
       
             void main()
             {
-                frag_color = v_color; 
+                frag_color = vColor; 
             }";
 
             var vertexHandle = GL.CreateShader(ShaderType.VertexShaderArb);
@@ -100,6 +97,23 @@ namespace GKApp
             GL.CreateBuffers(1, out _vertexPositionBuffer);
             GL.CreateVertexArrays(1, out _vertexArrayHandle);
         }
+
+        private Matrix4 CreateViewMatrix()
+        {
+            return Matrix4.Identity;
+        }
+        
+        private Matrix4 CreateProjectionMatrix()
+        {
+            return Matrix4.Identity;
+        }
+
+        public void OnWindowResize(int width, int height)
+        {
+            _windowSize.X = width;
+            _windowSize.Y = height;
+            GL.Viewport(0, 0, width, height);
+        }
         
         public void Render()
         {
@@ -126,24 +140,18 @@ namespace GKApp
             GL.Enable(EnableCap.ProgramPointSize);
 
             GL.GetError();
-            
-            // _VMatrix = Matrix4d.CreateTranslation(10.0, 10.0 , 10.0);
-            // _PMatrix = Matrix4d.Perspective(90, 640.0/480.0, 10, 100);
-            _VMatrix = Matrix4.Identity;
-            _PMatrix = Matrix4.Identity;
-            
-            var pmHandle = GL.GetUniformLocation(_program, "u_PMatrix");
-            var vmHandle = GL.GetUniformLocation(_program, "u_VMatrix");
 
-            ErrorCode err;
-            GL.UniformMatrix4(vmHandle, false, ref _VMatrix);
-            err = GL.GetError();
+            var vMatrix = CreateViewMatrix();
+            var pMatrix = CreateProjectionMatrix();
+            
+            GL.UniformMatrix4(GL.GetUniformLocation(_program, "uPMatrix"), false, ref vMatrix);
+            var err = GL.GetError();
             if (err != ErrorCode.NoError)
             {
                 Console.Out.WriteLine($"Error uniform 1 {err.ToString()}");
             }
 
-            GL.UniformMatrix4(vmHandle, false, ref _PMatrix);
+            GL.UniformMatrix4(GL.GetUniformLocation(_program, "uVMatrix"), false, ref pMatrix);
             err = GL.GetError();
             if (err != ErrorCode.NoError)
             {

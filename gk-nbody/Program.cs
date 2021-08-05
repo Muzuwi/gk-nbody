@@ -37,6 +37,12 @@ namespace GKApp
             GL.Enable(EnableCap.DepthTest);
         }
 
+        protected override void OnResize(ResizeEventArgs e)
+        {
+            base.OnResize(e);
+            _renderer.OnWindowResize(e.Width, e.Height);
+        }
+
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
@@ -53,7 +59,7 @@ namespace GKApp
         {
             base.OnRenderFrame(e);
             
-            GL.ClearColor(0.1f, 0.2f, 0.5f, 0.0f);
+            GL.ClearColor(0.2588235294117647f, 0.2588235294117647f, 0.2588235294117647f, 0.0f);
             GL.ClearDepth(1.0);
             GL.DepthFunc(DepthFunction.Lequal);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);

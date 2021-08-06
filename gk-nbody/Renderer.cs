@@ -117,7 +117,7 @@ namespace GKApp
                 (float)(45.0 * Math.PI / 180.0), 
                 (float)_windowSize.X / (float)_windowSize.Y, 
                 0.1f, 
-                1000.0f);
+                10000.0f);
         }
 
         public void OnWindowResize(int width, int height)

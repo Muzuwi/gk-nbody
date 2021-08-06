@@ -9,34 +9,17 @@ namespace GKApp
 {
     public class Simulation
     {
+        private Body[] _bodies;
         private const float G = 6.6743015151515e-11f;
-        private bool _running = true;
+        private bool _running = false;
         private float _simulationSpeed = 1.0f;
 
-        public Simulation()
-        {
-            PressedKeys = new Dictionary<Keys, bool>();
-            
-            var random = new Random();
-            var count = (int)( 25 + random.NextDouble() * 500);
-            Bodies = new Body[count];
-
-            foreach(var i in Enumerable.Range(0, count))
-            {
-                var position = new Vector3((float)random.NextDouble()*100, (float)random.NextDouble()*100, (float)random.NextDouble()*100);
-                var mass = 1e5 + random.NextDouble() * 1e18;
-                var color = new Vector3((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
-
-                Bodies[i] = new Body(position, new Vector3(), (float)mass, color);
-            }
-        }
-        
-        public Body[] Bodies { get; set; }
-
-        private Dictionary<Keys, bool> PressedKeys;
-        private const float Speed = 1.0f;
+        public Body[] Bodies => _bodies;
+        private Dictionary<Keys, bool> _pressedKeys;
+        private const float _cameraSpeed = 1.0f;
         private float _pitch;
         private float _yaw;
+        private int _seed;
         private Vector3 _cameraPos = Vector3.Zero;
         private Vector3 _cameraFront = Vector3.UnitZ;
         private Vector3 _cameraUp = Vector3.UnitY;
@@ -45,29 +28,48 @@ namespace GKApp
         public Vector3 CameraFront => _cameraFront;
         public Vector3 CameraUp => _cameraUp;
 
+        public bool SimulationRunning
+        {
+            get => _running;
+            set => _running = value;
+        }
+
+        public int Seed
+        {
+            get => _seed;
+            set => _seed = value;
+        }
+
+        public ref float GetSimulationSpeed()
+        {
+            return ref _simulationSpeed;
+        }
+
+        public Simulation()
+        {
+            _pressedKeys = new Dictionary<Keys, bool>();
+            _seed = new Random().Next();
+            ReloadWithSeed(_seed);
+        }
+
+        public void ReloadWithSeed(int seed)
+        {
+            var random = new Random(seed);
+            var count = (int)( 25 + random.NextDouble() * 500);
+            _bodies = new Body[count];
+
+            foreach(var i in Enumerable.Range(0, count))
+            {
+                var position = new Vector3((float)random.NextDouble()*100, (float)random.NextDouble()*100, (float)random.NextDouble()*100);
+                var mass = 1e10 + random.NextDouble() * 10000000;
+                var color = new Vector3((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
+                _bodies[i] = new Body(position, new Vector3(), (float)mass, color);
+            }
+        }
 
         public void Update(double delta)
         {
-                        
-            if (IsKeyPressed(Keys.W))
-            {
-                _cameraPos += Speed * _cameraFront;
-            }
-            if(IsKeyPressed(Keys.S))
-            {
-                _cameraPos -= Speed * _cameraFront;
-            }
-
-            if (IsKeyPressed(Keys.A))
-            {
-                _cameraPos -= Vector3.Cross(_cameraFront, _cameraUp).Normalized() * Speed;
-            }
-            
-            if (IsKeyPressed(Keys.D))
-            {
-                _cameraPos += Vector3.Cross(_cameraFront, _cameraUp).Normalized() * Speed;
-            }
-
+            UpdateKeys();
             if (!_running)
                 return;
 
@@ -98,35 +100,47 @@ namespace GKApp
             }
         }
 
-        public void SetSimulationRunning(bool running)
+        private void UpdateKeys()
         {
-            _running = running;
-        }
+            float currentSpeed = _cameraSpeed; 
+            if (IsKeyPressed(Keys.LeftShift))
+            {
+                currentSpeed *= 2.0f;
+            }            
+            
+            if (IsKeyPressed(Keys.W))
+            {
+                _cameraPos += currentSpeed * _cameraFront;
+            }
+            if(IsKeyPressed(Keys.S))
+            {
+                _cameraPos -= currentSpeed * _cameraFront;
+            }
 
-        public bool GetSimulationRunning()
+            if (IsKeyPressed(Keys.A))
+            {
+                _cameraPos -= Vector3.Cross(_cameraFront, _cameraUp).Normalized() * currentSpeed;
+            }
+            
+            if (IsKeyPressed(Keys.D))
+            {
+                _cameraPos += Vector3.Cross(_cameraFront, _cameraUp).Normalized() * currentSpeed;
+            } 
+        } 
+        
+        private bool IsKeyPressed(Keys key)
         {
-            return _running;
-        }
-
-        public ref float GetSimulationSpeed()
-        {
-            return ref _simulationSpeed;
-        }
-
-
-        public bool IsKeyPressed(Keys key)
-        {
-            return PressedKeys.GetValueOrDefault(key, false);
+            return _pressedKeys.GetValueOrDefault(key, false);
         }
         
         public void OnKeyDown(KeyboardKeyEventArgs e)
         {
-            PressedKeys[e.Key] = true;
+            _pressedKeys[e.Key] = true;
         }
         
         public void OnKeyUp(KeyboardKeyEventArgs e)
         {
-            PressedKeys[e.Key] = false;                
+            _pressedKeys[e.Key] = false;                
         }
 
         public void OnMouseMove(MouseMoveEventArgs e)

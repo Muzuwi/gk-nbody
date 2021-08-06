@@ -1,4 +1,6 @@
 ﻿using System;
+using ImGuiOpenTK;
+using ImGuiNET;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -13,6 +15,8 @@ namespace GKApp
     {
         private Simulation _simulation;
         private Renderer _renderer;
+        private ImGuiController _imGuiController;
+        private SimulationControl _simulationControl;
 
         public GKProgram() : base(
             new GameWindowSettings(), 
@@ -27,20 +31,23 @@ namespace GKApp
             )
         {
             _simulation = new Simulation();
+            _simulationControl = new SimulationControl(_simulation);
             _renderer = new Renderer(_simulation);
+            _imGuiController = new ImGuiController(640, 480);
         }
         
         protected override void OnLoad()
         {
             base.OnLoad();
             _renderer.OnLoad();
-            CursorGrabbed = true;
+            // CursorGrabbed = true;
         }
 
         protected override void OnResize(ResizeEventArgs e)
         {
             base.OnResize(e);
             _renderer.OnWindowResize(e.Width, e.Height);
+            _imGuiController.WindowResized(e.Width, e.Height);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -53,6 +60,7 @@ namespace GKApp
             }
             
             _simulation.Update(e.Time * 10);
+            _imGuiController.Update(this, (float)e.Time);
         }
         
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -62,7 +70,8 @@ namespace GKApp
             GL.ClearColor(0.2588235294117647f, 0.2588235294117647f, 0.2588235294117647f, 0.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             _renderer.Render();
-            
+            _simulationControl.Render();
+            _imGuiController.Render();
             SwapBuffers();
         }
 

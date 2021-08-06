@@ -1,11 +1,9 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Numerics;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using Vector2 = OpenTK.Mathematics.Vector2;
-using Vector3 = OpenTK.Mathematics.Vector3;
 
 namespace GKApp
 {
@@ -70,37 +68,24 @@ namespace GKApp
                 Bodies[mn].Velocity += acceleration * (float)delta;
                 Bodies[mn].Position += (Bodies[mn].Velocity * (float)delta) + (0.5f * acceleration * (float)Math.Pow(delta, 2));
             }
-
-            // if (IsKeyPressed(Keys.Space))
-            // {
-            //     _player.Y -= (float)delta * Speed;
-            // }
-            // if (IsKeyPressed(Keys.LeftShift))
-            // {
-            //     _player.Y += (float)delta * Speed;
-            // }
             
             if (IsKeyPressed(Keys.W))
             {
                 _cameraPos += Speed * _cameraFront;
-                Console.Out.WriteLine(_cameraPos.ToString());
             }
             if(IsKeyPressed(Keys.S))
             {
                 _cameraPos -= Speed * _cameraFront;
-                Console.Out.WriteLine(_cameraPos.ToString());
             }
 
             if (IsKeyPressed(Keys.A))
             {
                 _cameraPos -= Vector3.Cross(_cameraFront, _cameraUp).Normalized() * Speed;
-                Console.Out.WriteLine(_cameraPos.ToString());
             }
             
             if (IsKeyPressed(Keys.D))
             {
                 _cameraPos += Vector3.Cross(_cameraFront, _cameraUp).Normalized() * Speed;
-                Console.Out.WriteLine(_cameraPos.ToString());
             }
             
         }

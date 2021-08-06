@@ -33,7 +33,7 @@ namespace GKApp
                 uVMatrix;
                 vColor      = aColor;
                 gl_Position = uVMatrix * uPMatrix * vec4(aPos, 1.0);
-                float pointMass = 1.0 + (sqrt(aMass) / 1e9);
+                float pointMass = 1.5 + (sqrt(aMass) / 1e9);
                 gl_PointSize = pointMass;
             }
         ";

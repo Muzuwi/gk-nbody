@@ -13,6 +13,27 @@ namespace GKApp
         private const float G = 6.6743015151515e-11f;
         private bool _running = false;
         private float _simulationSpeed = 1.0f;
+        private static Vector3[] _planetColors = new Vector3[18]
+        {
+            new Vector3(0.596f, 0.003f, 0.003f),
+            new Vector3(0.827f, 0.133f, 0.133f),
+            new Vector3(0.960f, 0.039f, 0.039f),
+            new Vector3(0.533f, 0.003f, 0.003f),
+            new Vector3(0.325f, 0.054f, 0.054f),
+            new Vector3(0.219f, 0.058f, 0.058f),
+            new Vector3(1.000f, 0.356f, 0.160f),
+            new Vector3(1.000f, 0.541f, 0.160f),
+            new Vector3(0.964f, 0.741f, 0.474f),
+            new Vector3(1.000f, 0.854f, 0.560f),
+            new Vector3(1.000f, 0.898f, 0.780f),
+            new Vector3(0.992f, 0.913f, 0.827f),
+            new Vector3(0.988f, 0.827f, 0.290f),
+            new Vector3(0.972f, 0.921f, 0.670f),
+            new Vector3(0.996f, 0.996f, 0.843f),
+            new Vector3(0.843f, 0.980f, 0.996f),
+            new Vector3(0.627f, 0.898f, 0.933f),
+            new Vector3(0.768f, 0.882f, 0.992f)
+        };
 
         public Body[] Bodies => _bodies;
         private Dictionary<Keys, bool> _pressedKeys;
@@ -55,14 +76,14 @@ namespace GKApp
         public void ReloadWithSeed(int seed)
         {
             var random = new Random(seed);
-            var count = (int)( 25 + random.NextDouble() * 500);
+            var count = (int)( 250 + random.NextDouble() * 500);
             _bodies = new Body[count];
 
             foreach(var i in Enumerable.Range(0, count))
             {
                 var position = new Vector3((float)random.NextDouble()*100, (float)random.NextDouble()*100, (float)random.NextDouble()*100);
-                var mass = 1e10 + random.NextDouble() * 10000000;
-                var color = new Vector3((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
+                var mass = 1e2 + random.NextDouble() * 1e10;
+                var color = _planetColors[(int)Math.Round(random.NextDouble() * 16)];
                 _bodies[i] = new Body(position, new Vector3(), (float)mass, color);
             }
         }

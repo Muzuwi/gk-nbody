@@ -59,7 +59,7 @@ namespace GKApp
                 Close();
             }
             
-            _simulation.Update(e.Time / 1e3);
+            _simulation.Update(e.Time);
             _imGuiController.Update(this, (float)e.Time);
         }
         

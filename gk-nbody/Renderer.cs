@@ -35,7 +35,7 @@ namespace GKApp
                 
                 vColor      = aColor;
                 gl_Position = uVMatrix * uPMatrix * vec4(aPos, 1.0);
-                gl_PointSize = pointMass / distance(aPos, uCameraPos);
+                gl_PointSize = pointMass / ( 2 * distance(aPos, uCameraPos) );
             }
         ";
 

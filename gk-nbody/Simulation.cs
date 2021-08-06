@@ -61,6 +61,16 @@ namespace GKApp
             set => _seed = value;
         }
 
+        public ref int SeedRef()
+        {
+            return ref _seed;
+        }
+
+        public ref Body[] BodyRef()
+        {
+            return ref _bodies;
+        }
+
         public ref float GetSimulationSpeed()
         {
             return ref _simulationSpeed;

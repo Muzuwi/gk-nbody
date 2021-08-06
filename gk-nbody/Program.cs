@@ -1,8 +1,5 @@
-﻿using System;
-using ImGuiOpenTK;
+﻿using ImGuiOpenTK;
 using ImGuiNET;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -78,13 +75,15 @@ namespace GKApp
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             base.OnKeyDown(e);
-            _simulation.OnKeyDown(e);
+            if(!ImGui.GetIO().WantCaptureKeyboard)
+                _simulation.OnKeyDown(e);
         }
 
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
             base.OnKeyUp(e);
-            _simulation.OnKeyUp(e);
+            if(!ImGui.GetIO().WantCaptureKeyboard)
+                _simulation.OnKeyUp(e);
         }
 
         private bool _holdingLeftMouse = false;
@@ -114,6 +113,18 @@ namespace GKApp
             {
                 _simulation.OnMouseMove(e);    
             }
+        }
+        
+        protected override void OnTextInput(TextInputEventArgs e)
+        {
+            base.OnTextInput(e);
+            _imGuiController.PressChar((char)e.Unicode);
+        }
+
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            _imGuiController.MouseScroll(e.Offset);
         }
 
         public static void Main()

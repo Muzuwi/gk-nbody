@@ -25,6 +25,7 @@ namespace GKApp
 
             uniform mat4 uPMatrix;
             uniform mat4 uVMatrix;
+            uniform vec3 uCameraPos;
 
             out vec3 vColor;
             void main()
@@ -33,8 +34,8 @@ namespace GKApp
                 uVMatrix;
                 vColor      = aColor;
                 gl_Position = uVMatrix * uPMatrix * vec4(aPos, 1.0);
-                float pointMass = 1.5 + (sqrt(aMass) / 1e9);
-                gl_PointSize = pointMass;
+                float pointMass = 5e2 + (sqrt(aMass) / 5e4);
+                gl_PointSize = pointMass / distance(aPos, uCameraPos);
             }
         ";
 
@@ -174,7 +175,9 @@ namespace GKApp
             {
                 Console.Out.WriteLine($"Error uniform 2 {err.ToString()}");
             }
-            
+
+            GL.Uniform3(GL.GetUniformLocation(_program, "uCameraPos"), _simulation.CameraPos);
+
             GL.DrawArrays(PrimitiveType.Points, 0, _simulation.Bodies.Length);
 
 

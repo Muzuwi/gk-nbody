@@ -13,7 +13,7 @@ namespace GKApp
         private const float G = 6.6743015151515e-11f;
         private bool _running = false;
         private float _simulationSpeed = 1.0f;
-        private static Vector3[] _planetColors = new Vector3[18]
+        private static Vector3[] _planetColors = new Vector3[21]
         {
             new Vector3(0.596f, 0.003f, 0.003f),
             new Vector3(0.827f, 0.133f, 0.133f),
@@ -32,7 +32,10 @@ namespace GKApp
             new Vector3(0.996f, 0.996f, 0.843f),
             new Vector3(0.843f, 0.980f, 0.996f),
             new Vector3(0.627f, 0.898f, 0.933f),
-            new Vector3(0.768f, 0.882f, 0.992f)
+            new Vector3(0.768f, 0.882f, 0.992f),
+            new Vector3(0.921f, 0.956f, 0.976f),
+            new Vector3(0.995f, 0.995f, 0.995f),
+            new Vector3(0.035f, 0.572f, 0.925f)
         };
 
         public Body[] Bodies => _bodies;
@@ -93,7 +96,7 @@ namespace GKApp
             {
                 var position = new Vector3((float)random.NextDouble()*100, (float)random.NextDouble()*100, (float)random.NextDouble()*100);
                 var mass = 1e2 + random.NextDouble() * 1e10;
-                var color = _planetColors[(int)Math.Round(random.NextDouble() * 16)];
+                var color = _planetColors[(int)Math.Round(random.NextDouble() * (_planetColors.Length - 1))];
                 _bodies[i] = new Body(position, new Vector3(), (float)mass, color);
             }
         }

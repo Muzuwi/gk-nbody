@@ -22,9 +22,10 @@ namespace GKApp
             foreach(var i in Enumerable.Range(0, count))
             {
                 var position = new Vector3((float)random.NextDouble()*100, (float)random.NextDouble()*100, (float)random.NextDouble()*100);
-                var mass = 1e10 + random.NextDouble() * 10000000;
-                
-                Bodies[i] = new Body(position, new Vector3(), (float)mass);
+                var mass = 1e5 + random.NextDouble() * 1e18;
+                var color = new Vector3((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
+
+                Bodies[i] = new Body(position, new Vector3(), (float)mass, color);
             }
         }
         
@@ -45,10 +46,6 @@ namespace GKApp
 
         public void Update(double delta)
         {
-            /*
-             * SUM(F21);
-             * F21 = - ( (G * m1 * m2) / |r21 ^ 2| ) * r`21 
-             */
 
             for(int mn = 0; mn < Bodies.Length; mn++)
             {

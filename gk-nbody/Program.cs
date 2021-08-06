@@ -59,7 +59,7 @@ namespace GKApp
                 Close();
             }
             
-            _simulation.Update(e.Time * 10);
+            _simulation.Update(e.Time / 1e3);
             _imGuiController.Update(this, (float)e.Time);
         }
         
@@ -67,7 +67,7 @@ namespace GKApp
         {
             base.OnRenderFrame(e);
             
-            GL.ClearColor(0.2588235294117647f, 0.2588235294117647f, 0.2588235294117647f, 0.0f);
+            GL.ClearColor(0.1f, 0.1f, 0.1f, 0.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             _renderer.Render();
             _simulationControl.Render();

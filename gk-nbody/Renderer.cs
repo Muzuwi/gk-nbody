@@ -21,6 +21,7 @@ namespace GKApp
             precision highp float;
             layout (location = 0) in vec3 aPos;
             layout (location = 1) in float aMass;
+            layout (location = 2) in vec3 aColor;
 
             uniform mat4 uPMatrix;
             uniform mat4 uVMatrix;
@@ -30,9 +31,9 @@ namespace GKApp
             {
                 uPMatrix;
                 uVMatrix;
-                vColor      = vec3(1.0, 1.0, 0.0);
+                vColor      = aColor;
                 gl_Position = uVMatrix * uPMatrix * vec4(aPos, 1.0);
-                float pointMass = 1.0 + (sqrt(aMass) / 12500.0);
+                float pointMass = 1.0 + (sqrt(aMass) / 1e9);
                 gl_PointSize = pointMass;
             }
         ";
@@ -133,21 +134,26 @@ namespace GKApp
             GL.BindVertexArray(_vertexArrayHandle);
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexPositionBuffer);
 
-            vertexPos = new float[_simulation.Bodies.Length * 4];
+            vertexPos = new float[_simulation.Bodies.Length * 7];
             int i = 0;
-            foreach(Body v in _simulation.Bodies)
+            foreach (Body v in _simulation.Bodies)
             {
                 vertexPos[i++] = v.Position.X;
                 vertexPos[i++] = v.Position.Y;
                 vertexPos[i++] = v.Position.Z;
                 vertexPos[i++] = v.Mass;
+                vertexPos[i++] = v.Color.X; //R
+                vertexPos[i++] = v.Color.Y; //G
+                vertexPos[i++] = v.Color.Z; //B
             }
 
             GL.BufferData(BufferTarget.ArrayBuffer, vertexPos.Length*sizeof(float), vertexPos, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 7 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
-            GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Float, false, 4 * sizeof(float), 3 * sizeof(float));
+            GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Float, false, 7 * sizeof(float), 3 * sizeof(float));
             GL.EnableVertexAttribArray(1);
+            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, 7 * sizeof(float), 4 * sizeof(float));
+            GL.EnableVertexAttribArray(2);
             GL.Enable(EnableCap.ProgramPointSize);
 
             GL.GetError();
@@ -172,20 +178,7 @@ namespace GKApp
             GL.DrawArrays(PrimitiveType.Points, 0, _simulation.Bodies.Length);
 
 
-            GL.UseProgram(_program);
-            float[] test = new float[]
-            {
-                0.0f, 0.0f, 0.0f, 1.0f,
-                0.0f, 10.0f, 0.0f, 1.0f,
-                -10.0f, 0.0f, 0.0f, 1.0f
-            };
-            GL.BufferData(BufferTarget.ArrayBuffer, test.Length*sizeof(float), test, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
-            GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Float, false, 4 * sizeof(float), 3 * sizeof(float));
-            GL.EnableVertexAttribArray(1);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
-            
+            GL.UseProgram(_program);        
         }
     }
 }

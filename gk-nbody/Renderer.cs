@@ -30,11 +30,11 @@ namespace GKApp
             out vec3 vColor;
             void main()
             {
-                uPMatrix;
-                uVMatrix;
+                float pointMass = 5e2 + (sqrt(aMass) / 5e4);
+                float camDistance = distance(aPos, uCameraPos);
+                
                 vColor      = aColor;
                 gl_Position = uVMatrix * uPMatrix * vec4(aPos, 1.0);
-                float pointMass = 5e2 + (sqrt(aMass) / 5e4);
                 gl_PointSize = pointMass / distance(aPos, uCameraPos);
             }
         ";
@@ -42,12 +42,12 @@ namespace GKApp
         private readonly string fragmentShaderCode = @"
             #version 460 core
             precision highp float;
-            out vec3 frag_color;
+            out vec3 FragColor;
             in  vec3 vColor;
       
             void main()
             {
-                frag_color = vColor; 
+                FragColor = vColor;
             }
         ";
 
@@ -155,7 +155,6 @@ namespace GKApp
             GL.EnableVertexAttribArray(1);
             GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, 7 * sizeof(float), 4 * sizeof(float));
             GL.EnableVertexAttribArray(2);
-            GL.Enable(EnableCap.ProgramPointSize);
 
             GL.GetError();
 

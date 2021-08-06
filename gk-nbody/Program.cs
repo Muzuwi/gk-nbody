@@ -37,7 +37,6 @@ namespace GKApp
         {
             base.OnLoad();
             _renderer.OnLoad();
-            // CursorGrabbed = true;
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -64,11 +63,14 @@ namespace GKApp
         {
             base.OnRenderFrame(e);
             
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.ProgramPointSize);
             GL.ClearColor(0.1f, 0.1f, 0.1f, 0.0f);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             _renderer.Render();
             _simulationControl.Render();
             _imGuiController.Render();
+            
             SwapBuffers();
         }
 

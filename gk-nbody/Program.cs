@@ -87,10 +87,33 @@ namespace GKApp
             _simulation.OnKeyUp(e);
         }
 
+        private bool _holdingLeftMouse = false;
+        
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (e.Button == MouseButton.Left)
+            {
+                _holdingLeftMouse = true;
+            }
+        }
+
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseUp(e);
+            if (e.Button == MouseButton.Left)
+            {
+                _holdingLeftMouse = false;
+            }
+        }
+
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
             base.OnMouseMove(e);
-            _simulation.OnMouseMove(e);
+            if (_holdingLeftMouse && !ImGui.GetIO().WantCaptureMouse)
+            {
+                _simulation.OnMouseMove(e);    
+            }
         }
 
         public static void Main()

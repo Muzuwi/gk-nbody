@@ -9,7 +9,7 @@ namespace GKApp
 {
     public class Renderer
     {
-        private ISimulation _simulation;
+        private Simulation _simulation;
         private int _program;
         private int _vertexPositionBuffer;
         private int _vertexArrayHandle;
@@ -51,7 +51,7 @@ namespace GKApp
         ";
 
         
-        public Renderer(ISimulation simulation)
+        public Renderer(Simulation simulation)
         {
             _simulation = simulation;
         }

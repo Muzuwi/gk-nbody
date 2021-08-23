@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -79,23 +80,27 @@ namespace GKApp
 
             delta *= _simulationSpeed;
 
-            for(int mn = 0; mn < Bodies.Length; mn++)
+            for(var mn = 0; mn < _bodies.Length; mn++)
             {
-                Vector3 F = new(0,0,0);
-                for (int mi = 0; mi < Bodies.Length; mi++)
+                var b1 = _bodies[mn];
+                
+                Vector3 F = Vector3.Zero;
+                for (var mi = 0; mi < _bodies.Length; mi++)
                 {
                     if (mn == mi) continue;
-                    double distance = (Bodies[mn].Position - Bodies[mi].Position).Length;
+                    var b2 = _bodies[mi];
                     
-                    Vector3 forces = ((Bodies[mn].Position - Bodies[mi].Position) / (float)distance);
-                    forces /= (float)Math.Abs(Math.Pow(distance, 2));
-                    forces *= -(G * Bodies[mn].Mass * Bodies[mi].Mass);
+                    Vector3 subtracted = (b1.Position - b2.Position);
+                    Vector3 forces = subtracted.Normalized() / subtracted.LengthSquared;
+                    forces *= -(G * b1.Mass * b2.Mass);
+
                     F += forces;
                 }
                 
-                Vector3 acceleration = (F / Bodies[mn].Mass);
-                Bodies[mn].Velocity += acceleration * (float)delta;
-                Bodies[mn].Position += (Bodies[mn].Velocity * (float)delta) + (0.5f * acceleration * (float)Math.Pow(delta, 2));
+                Vector3 acceleration = (F / b1.Mass);
+                _bodies[mn].Velocity += acceleration  * (float)delta;
+                _bodies[mn].Position += (b1.Velocity * (float)delta);
+                _bodies[mn].Position += (0.5f * acceleration * (float)delta * (float)delta);
             }
         }
 

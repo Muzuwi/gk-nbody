@@ -13,7 +13,7 @@ namespace GKApp
         private int _massMin = 4;
         private float _positionMin = -100f;
 
-        private int _quantityMax = 750;
+        private int _quantityMax = 10000;
         private int _massMax = 16;
         private float _positionMax = 100f;
 
@@ -42,6 +42,8 @@ namespace GKApp
 
         private void DrawSimControlContents()
         { 
+            ImGui.Text($"FPS: {ImGui.GetIO().Framerate}");
+        
             if (ImGui.InputInt("Ziarno", ref _simulation.SeedRef(), 1, 10, ImGuiInputTextFlags.AlwaysInsertMode | ImGuiInputTextFlags.CharsDecimal | ImGuiInputTextFlags.CharsScientific | ImGuiInputTextFlags.CharsNoBlank))
             {
                 _simulation.Reload();
